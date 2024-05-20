@@ -8,10 +8,10 @@ I am running it right now on my PC and I will leave it running for at least a we
 
 I have only tested it on Windows, but it should work on Mac and Linux.
 To run:
-
+```
 download key-logger.py
 pip install pynput
 python key-logger.py
-
+```
 Leave it running for at least a week. When you're ready, kill it w Control-C or Control-Break or just kill the window. Then send me the key_counts.json for collating.
 It might be helpful if you also told me if you are using VSCode, Vim, Emacs or something else for text editing. I can do separate analysis for users of each editor.
