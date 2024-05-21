@@ -15,3 +15,9 @@ python key-logger.py
 ```
 Leave it running for at least a week. When you're ready, kill it w Control-C or Control-Break or just kill the window. Then send me the key_counts.json for collating.
 It might be helpful if you also told me if you are using VSCode, Vim, Emacs or something else for text editing. I can do separate analysis for users of each editor.
+
+
+## Todo:
+- Record unigrams, bigrams and trigrams. The data file will be much bigger, so move from dumping a json file to updating a SQLite database.
+- Reach out to keyboard layout analysis program maintainers and ask them to add the ability to read a unigram,bigram,trigram data file instead of consuming a text corpus (obviously I can't ask people to send me their actual text instead of just counts)
+- Write a tool to consolidate multiple people's data files into one large data file. Do this to make one huge data file, and one for people using different editors (VSCode, vim, emacs, etc).
