@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # @ControlAltPete - 2024
-# Keystroke logger to keep frequency statistics on every key pressed.
+# Keystroke logger to keep frequency statistics on every key pressed and bigrams.
 # Use this for developing optimized non-Qwerty keyboard layouts.
 # Run it for a long time > 1 week to get realistic usage data.
 # Note: There is no real privacy implication as it only stores the count
@@ -11,28 +11,42 @@
 
 import pynput
 from pynput.keyboard import Key, Listener
-import json
+import sqlite3
+import argparse
 
-# Dictionary to store key counts
-key_counts = {}
+# Initialize database connection and create tables if not exists
+def init_db():
+    conn = sqlite3.connect('key_counts.db')
+    c = conn.cursor()
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS key_counts (
+        key TEXT PRIMARY KEY,
+        count INTEGER
+    )
+    ''')
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS bigram_counts (
+        bigram TEXT PRIMARY KEY,
+        count INTEGER
+    )
+    ''')
+    conn.commit()
+    return conn, c
 
-# Set to keep track of currently pressed modifier keys
-current_modifiers = set()
-
-# Modifier keys mapping
-modifier_keys = {
-    'ctrl_l': 'ctrl', 'ctrl_r': 'ctrl',
-    'alt_l': 'alt', 'alt_r': 'alt',
-    'shift': 'shift', 'shift_r': 'shift',
-    'ctrl': 'ctrl', 'cmd': 'cmd', 'alt': 'alt', 'shift': 'shift'
-}
-
-# Counter for keypresses
-keypress_count = 0
+# Display contents of the database sorted by highest counts
+def display_counts():
+    conn, c = init_db()
+    print("Individual Key Counts:")
+    for row in c.execute('SELECT key, count FROM key_counts ORDER BY count DESC'):
+        print(f'{row[0]}: {row[1]}')
+    print("\nBigram Counts:")
+    for row in c.execute('SELECT bigram, count FROM bigram_counts ORDER BY count DESC'):
+        print(f'{row[0]}: {row[1]}')
+    conn.close()
 
 # Function to handle key presses
 def on_press(key):
-    global keypress_count
+    global last_key
 
     key_str = None
 
@@ -50,22 +64,32 @@ def on_press(key):
         except AttributeError:
             key_str = str(key)
 
-    # Create the key representation with modifiers
     if key_str:
+        # Create the key representation with modifiers
         combined_modifiers = {modifier_keys[mod] for mod in current_modifiers if mod in modifier_keys}
         combined_key = '+'.join(sorted(combined_modifiers)) + '+' + key_str if combined_modifiers else key_str
-        if combined_key in key_counts:
-            key_counts[combined_key] += 1
+
+        # Update individual key count
+        c.execute('SELECT count FROM key_counts WHERE key = ?', (combined_key,))
+        result = c.fetchone()
+        if result:
+            c.execute('UPDATE key_counts SET count = count + 1 WHERE key = ?', (combined_key,))
         else:
-            key_counts[combined_key] = 1
+            c.execute('INSERT INTO key_counts (key, count) VALUES (?, 1)', (combined_key,))
 
-        keypress_count += 1
+        # Update bigram count
+        if last_key:
+            bigram = last_key + ' ' + combined_key
+            c.execute('SELECT count FROM bigram_counts WHERE bigram = ?', (bigram,))
+            result = c.fetchone()
+            if result:
+                c.execute('UPDATE bigram_counts SET count = count + 1 WHERE bigram = ?', (bigram,))
+            else:
+                c.execute('INSERT INTO bigram_counts (bigram, count) VALUES (?, 1)', (bigram,))
+        
+        last_key = combined_key
 
-        # Write key counts to file every 10 keypresses
-        if keypress_count >= 10:
-            keypress_count = 0
-            with open("key_counts.json", "w") as file:
-                json.dump(key_counts, file, sort_keys=True, indent=4)
+        conn.commit()
 
 # Function to handle key releases
 def on_release(key):
@@ -74,22 +98,39 @@ def on_release(key):
         if key_str in modifier_keys:
             current_modifiers.discard(key_str)
 
-# Function to stop the listener and perform a final write
+# Function to stop the listener and close the database connection
 def stop_listener():
-    # Ensure the last batch of keypresses is written before exit
-    with open("key_counts.json", "w") as file:
-        json.dump(key_counts, file, sort_keys=True, indent=4)
+    conn.close()
     listener.stop()
 
-# Setup listener
-listener = Listener(on_press=on_press, on_release=on_release)
+# Setup command-line argument parsing
+parser = argparse.ArgumentParser(description='Keystroke logger and analyzer')
+parser.add_argument('--display', action='store_true', help='Display the contents of the database sorted by highest counts')
+args = parser.parse_args()
 
-# Inform the user how to stop the logger and where the results will be written
-print("Keystroke frequency logging starting. Press Ctrl+Break in this window to stop. Results will be written to key_counts.json")
+# Initialize variables and database connection
+conn, c = init_db()
+last_key = None
+current_modifiers = set()
+modifier_keys = {
+    'ctrl_l': 'ctrl', 'ctrl_r': 'ctrl',
+    'alt_l': 'alt', 'alt_r': 'alt',
+    'shift': 'shift', 'shift_r': 'shift',
+    'ctrl': 'ctrl', 'cmd': 'cmd', 'alt': 'alt', 'shift': 'shift'
+}
 
-try:
-    # Start the listener and keep the main thread running, waiting for the stop event
-    listener.start()
-    listener.join()
-except KeyboardInterrupt:
-    stop_listener()
+if args.display:
+    display_counts()
+else:
+    # Setup listener
+    listener = Listener(on_press=on_press, on_release=on_release)
+
+    # Inform the user how to stop the logger and where the results will be written
+    print("Keystroke frequency logging starting. Press Ctrl+Break in this window to stop. Results will be written to key_counts.db")
+
+    try:
+        # Start the listener and keep the main thread running, waiting for the stop event
+        listener.start()
+        listener.join()
+    except KeyboardInterrupt:
+        stop_listener()
