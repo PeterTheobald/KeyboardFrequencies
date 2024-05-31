@@ -10,7 +10,7 @@ It counts individual keystrokes and bigrams.
 I have only tested it on Windows, but it should work on Mac and Linux.
 To run:
 ```
-if you have an older Windows you may need to install Python first: [Microsoft Store Python Installer](https://apps.microsoft.com/detail/9nj46sx7x90p?activetab=pivot%3Aoverviewtab&rtc=1&hl=en-us&gl=US)
+if you have an older Windows you may need to install Python first. Link to Python installer below ‡
 download key-logger.py
 pip install pynput
 python key-logger.py
@@ -22,6 +22,7 @@ It might be helpful if you also told me if you are using Windows or Mac, VSCode,
 python key-logger.py --display
 This will display the counts in the database after running the program.
 ```
+‡ [Microsoft Store Python Installer](https://apps.microsoft.com/detail/9nj46sx7x90p?activetab=pivot%3Aoverviewtab&rtc=1&hl=en-us&gl=US)
 
 ## Todo:
 - [x] Record unigrams, bigrams and trigrams. The data file will be much bigger, so move from dumping a json file to updating a SQLite database.
