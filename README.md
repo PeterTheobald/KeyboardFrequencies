@@ -10,7 +10,7 @@ It counts individual keystrokes and bigrams.
 I have only tested it on Windows, but it should work on Mac and Linux.
 To run:
 ```
-if you have an older Windows you may need to install Python first: https://apps.microsoft.com/detail/9nj46sx7x90p?activetab=pivot%3Aoverviewtab&rtc=1&hl=en-us&gl=US
+if you have an older Windows you may need to install Python first: [Microsoft Store Python Installer](https://apps.microsoft.com/detail/9nj46sx7x90p?activetab=pivot%3Aoverviewtab&rtc=1&hl=en-us&gl=US)
 download key-logger.py
 pip install pynput
 python key-logger.py
