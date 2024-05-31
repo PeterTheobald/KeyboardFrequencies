@@ -11,7 +11,7 @@ I have only tested it on Windows, but it should work on Mac and Linux.
 To run:
 ```
 if you have an older Windows you may need to install Python first. Link to Python installer below ‡
-download key-logger.py
+download key-logger.py from here https://github.com/PeterTheobald/KeyboardFrequencies/blob/main/key-logger.py
 pip install pynput
 python key-logger.py
 ```
