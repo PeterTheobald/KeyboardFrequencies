@@ -16,7 +16,7 @@ To run:
 - `python key-logger.py`
 
 Leave it running for at least a week. When you're ready, press the STOP button. Use `python key-logger.py --display` to see the results. Then send me the key_counts.db for collating.
-It might be helpful if you also told me if you are using Windows or Mac, VSCode, Vim, Emacs or something else for text editing. I can do separate analysis for users of each platform and editor.
+It might be helpful if you also told me if you are using Windows or Mac, English, or a different language, VSCode, Vim, Emacs or something else for text editing. I can do separate analysis for users of each platform and editor.
 
 ```
 python key-logger.py --display
@@ -28,4 +28,4 @@ This will display the counts in the database after running the program.
 - [x] Add a GUI interface
 - [ ] Test on Mac OSX
 - [ ] Reach out to keyboard layout analysis program maintainers and ask them to add the ability to read a unigram,bigram,trigram data file instead of consuming a text corpus (obviously I can't ask people to send me their actual text instead of just counts)
-- [ ] Write a tool to consolidate multiple people's data files into one large data file. Do this to make one huge data file, and one for people using different editors (VSCode, vim, emacs, etc).
+- [ ] Write a tool to consolidate multiple people's data files into one large data file. Do this to make one huge data file, and one for people using different languages, different editors (VSCode, vim, emacs, etc).
